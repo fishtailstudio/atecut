@@ -1,5 +1,5 @@
 # atecut
-##用php curl爬虫模拟登录东华理工大学教务系统，并获取成绩
+## 用php curl爬虫模拟登录东华理工大学教务系统，并获取成绩
 
 ### 前言
 之前看到很多人做过用模拟登录教务系统来获取成绩课表等信息，比如微信公众号“在洛理”和微信小程序“We交理”。感觉挺有趣的，自己也想尝试一下。但是搜索了很多相关资料后，实现起来却困难重重。在逐步仔细的分析教务系统的登录过程后，终于成功的用php curl模拟登录并获取到了成绩信息。
@@ -192,12 +192,12 @@ $url='jw.ecit.cn/reportFiles/student/cj_zwcjd_all.jsp'.'?ticket='.$ticket;
 
 哈哈哈，高兴！
 
-###结尾
+### 结尾
 最后肯定是做个登录页来测试一下咯
 ![登录页](http://ox2o4zwyi.bkt.clouddn.com/phpcurl15.png)
 ![成绩信息页](http://ox2o4zwyi.bkt.clouddn.com/phpcurl16.png)
 
-###源码
+### 源码
 附上源码：[https://github.com/wenyu2333/atecut](https://github.com/wenyu2333/atecut)
 
 
