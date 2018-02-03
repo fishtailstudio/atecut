@@ -165,7 +165,8 @@ $preg2 = "/ticket=(.*)\";/";
 preg_match_all($preg2, $filecontent, $arr2);
 $ticket=$arr2[1][0];
 ```
-输出一下看看：![ticket参数](http://ox2o4zwyi.bkt.clouddn.com/phpcurl11.png)
+输出一下看看：
+![ticket参数](http://ox2o4zwyi.bkt.clouddn.com/phpcurl11.png)
 
 既然ticket值得到了，而且如果没ticket参数的话会重定向到`http://xxx?ticket=xxx`这样的url，那我们拼接成这样的url，再get请求试试：
 ```
@@ -173,7 +174,8 @@ $ticket=$arr2[1][0];
 $url=$url.'?ticket='.$ticket;
 echo curl_get_request($url, '', $cookie, 0);
 ```
-看看网页源代码![获取成绩页成功！](http://ox2o4zwyi.bkt.clouddn.com/phpcurl13.png)
+看看网页源代码
+![成功](http://ox2o4zwyi.bkt.clouddn.com/phpcurl13.png)
 没问题，获取成功，不会再重定向了。
 
 再去get请求成绩页试试
