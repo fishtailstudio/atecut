@@ -88,7 +88,10 @@ function curl_post_request($url, $head='', $data='', $cookie='', $returnCookie=0
 
 东华理工教务系统：[https://cas.ecit.cn/index.jsp?service=http://portal.ecit.cn/Authentication](https://cas.ecit.cn/index.jsp?service=http://portal.ecit.cn/Authentication)
 
-首先当然是抓包啦，比如说用抓包工具Fiddler等，我在这里用的是浏览器自带的功能。打开教务系统，按F12，找到Network，然后进行正常登录，这时你就能看到用什么方式提交什么请求头和什么数据到哪个URL![抓包](http://ox2o4zwyi.bkt.clouddn.com/phpcurl1.png)![抓包](http://ox2o4zwyi.bkt.clouddn.com/phpcurl2.png)![抓包](http://ox2o4zwyi.bkt.clouddn.com/phpcurl3.png)
+首先当然是抓包啦，比如说用抓包工具Fiddler等，我在这里用的是浏览器自带的功能。打开教务系统，按F12，找到Network，然后进行正常登录，这时你就能看到用什么方式提交什么请求头和什么数据到哪个URL
+![抓包](http://ox2o4zwyi.bkt.clouddn.com/phpcurl1.png)
+![抓包](http://ox2o4zwyi.bkt.clouddn.com/phpcurl2.png)
+![抓包](http://ox2o4zwyi.bkt.clouddn.com/phpcurl3.png)
 如图，提交数据
 ```
 username:1111
