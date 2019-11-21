@@ -89,9 +89,9 @@ public function curl_post_request($url, $header='', $data='', $cookie='', $retur
 东华理工教务系统：[https://cas.ecit.cn/index.jsp?service=http://portal.ecit.cn/Authentication](https://cas.ecit.cn/index.jsp?service=http://portal.ecit.cn/Authentication)
 
 首先当然是抓包啦，比如说用抓包工具Fiddler等，我在这里用的是浏览器自带的功能。打开教务系统，按F12，找到Network，然后进行正常登录，这时你就能看到用什么方式提交什么请求头和什么数据到哪个URL
-![抓包](https://img.atecut.cn/phpcurl1.png)
-![抓包](https://img.atecut.cn/phpcurl2.png)
-![抓包](https://img.atecut.cn/phpcurl3.png)
+![抓包](http://images.atecut.cn/phpcurl1.png)
+![抓包](http://images.atecut.cn/phpcurl2.png)
+![抓包](http://images.atecut.cn/phpcurl3.png)
 如图，提交数据
 ```
 username:1111
@@ -108,7 +108,7 @@ https://cas.ecit.cn/index.jsp?service=http://portal.ecit.cn/Authentication
 等等，那里有个叫`lt`的数据，而且每次刷新网页这个值都会变，怎么办！
 
 看看源代码，果然表单里有个隐藏的input
-![隐藏的参数lt](https://img.atecut.cn/phpcurl5.png)
+![隐藏的参数lt](http://images.atecut.cn/phpcurl5.png)
 
  首先我们要知道，如果登录成功后，那么服务器会生成随机串（就是`SessionId`）来表示登录成功的状态，并返回给浏览器，浏览器得到这个串之后，作为`cookies`保存在浏览器，每次要获取登陆后里面的数据时都会提交这个串来验证是否已经登录。
 自然，相同的`cookies`也有相同的`lt`。
@@ -125,7 +125,7 @@ preg_match_all($preg, $filecontent['content'], $arr);
 $lt = $arr[1][0];
 ```
 输出`$lt`试试
-![隐藏的lt参数](https://img.atecut.cn/phpcurl4.png)
+![隐藏的lt参数](http://images.atecut.cn/phpcurl4.png)
 
 下一步就是用post方法提交数据了
 ```
@@ -143,18 +143,18 @@ $cookie = $cookie_1.";".$cookie_2;
 ```
 这里为什么我要拼接两次或得到cookie呢？
 这是因为我发现正常登录后会保存两个cookie值，而这两个cookie值刚好分别是get请求登录页和post请求登录页的cookie值！
-![cookies](https://img.atecut.cn/phpcurl6.png)
+![cookies](http://images.atecut.cn/phpcurl6.png)
 
 现在我们已经获取到了cookies，说明已经登录成功了！
 在登录成功后，网页会自动跳转到`ttp://jw.ecit.cn/login.jsp`这个页面，那我们get请求一下这个页面试试：
 果然登录成功了！
-![登录成功](https://img.atecut.cn/phpcurl7.png)
+![登录成功](http://images.atecut.cn/phpcurl7.png)
 但是，看域名，这明显是经过了重定向的页面，我们看看网页源代码：
-![网页源代码](https://img.atecut.cn/phpcurl9.png)
+![网页源代码](http://images.atecut.cn/phpcurl9.png)
 果然是一个JS重定向。接下来，我尝试了去get请求其他的登录后才能查看的页面，如成绩页，课表页，结果都会被重定向。要知道，我们得到的页面只有这样一个JS重定向的语句，没有得到任何有用的信息。
 
 仔细看看发现每次重定向都会加个ticket参数去进行重定向，而且我发现，成功登录后这个ticket值是不会改变的。如果用一个非法的或者已过期的ticket参数去get请求页面，将会得到这样的500 Servlet Exception错误页面：
-![500 Servlet Exception错误页面](https://img.atecut.cn/phpcurl10.png)
+![500 Servlet Exception错误页面](http://images.atecut.cn/phpcurl10.png)
 
 这说明，每次成功登录后，除了两个cookie外，服务器还会分配一个ticket值给客户端，用来验证是否登录成功。那这又涉及到刚刚提到的知识了。
 用get方法去请求刚刚那个页面，用正则匹配出ticket值。
@@ -165,7 +165,7 @@ $preg2 = "/ticket=(.*)\";/";
 preg_match_all($preg2, $filecontent, $arr2);
 $ticket=$arr2[1][0];
 ```
-输出一下看看：![ticket参数](https://img.atecut.cn/phpcurl11.png)
+输出一下看看：![ticket参数](http://images.atecut.cn/phpcurl11.png)
 
 既然ticket值得到了，而且如果没ticket参数的话会重定向到`http://xxx?ticket=xxx`这样的url，那我们拼接成这样的url，再get请求试试：
 ```
@@ -173,7 +173,7 @@ $ticket=$arr2[1][0];
 $url=$url.'?ticket='.$ticket;
 echo curl_get_request($url, '', $cookie, 0);
 ```
-看看网页源代码![获取成绩页成功！](https://img.atecut.cn/phpcurl13.png)
+看看网页源代码![获取成绩页成功！](http://images.atecut.cn/phpcurl13.png)
 没问题，获取成功，不会再重定向了。
 
 再去get请求成绩页试试
@@ -183,7 +183,7 @@ $url='http://jw.ecit.cn/gradeLnAllAction.do?type=ln&oper=qbinfo&lnxndm=2017-2018
 $score=curl_get_request($url, '', $cookie, 0);
 echo $score;//获取成绩成功！
 ```
-![获取成绩页成功！](https://img.atecut.cn/phpcurl12.png)
+![获取成绩页成功！](http://images.atecut.cn/phpcurl12.png)
 OJBK！获取成绩页成功！
 
 接下来要做的就是用正则去把一个个成绩信息匹配出来了。
@@ -191,11 +191,11 @@ OJBK！获取成绩页成功！
 ```
 $url='jw.ecit.cn/reportFiles/student/cj_zwcjd_all.jsp'.'?ticket='.$ticket;
 ```
-![获取成绩打印页页成功](https://img.atecut.cn/phpcurl17.png)
+![获取成绩打印页页成功](http://images.atecut.cn/phpcurl17.png)
 
 哈哈哈，高兴！
 
 ### 结尾
 最后肯定是做个登录页来测试一下咯
-![登录页](https://img.atecut.cn/phpcurl15.png)
-![成绩信息页](https://img.atecut.cn/phpcurl16.png)
+![登录页](http://images.atecut.cn/phpcurl15.png)
+![成绩信息页](http://images.atecut.cn/phpcurl16.png)
