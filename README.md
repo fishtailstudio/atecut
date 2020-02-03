@@ -4,84 +4,101 @@
 ### 封装了两个函数
 封装了两个函数来分别进行get和post请求。
 ```
-//参数1：访问的URL，参数2：请求头数据，参数3：提交的$cookies,参数4：是否返回$cookies
-public function curl_get_request($url, $header='', $cookie='', $returnCookie=0){
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($curl, CURLOPT_AUTOREFERER, 1);
-        curl_setopt($curl, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36');
-        if($header) {
-            curl_setopt($curl,CURLOPT_HTTPHEADER,$header);  //设置表头
-        }
-        if($cookie) {
-            curl_setopt($curl, CURLOPT_COOKIE, $cookie);
-        }
-        curl_setopt($curl, CURLOPT_HEADER, $returnCookie);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
-        $filecontent = curl_exec($curl);
-        if (curl_errno($curl)) {
-            return curl_error($curl);
-        }
-        curl_close($curl);
-        if($returnCookie){
-            list($header, $body) = explode("\r\n\r\n", $filecontent, 2);
-            preg_match_all("/Set\-Cookie:([^;]*);/", $filecontent, $matches);
-            $cookie='';
-            foreach ($matches[1] as $value) {
-              $cookie = $value.';'.$cookie;
-            }
-            $info['cookie']  = preg_replace('# #','',$cookie);
-            $info['content'] = $body;
-            return $info;
-        }else{
-            return $filecontent;
-        }
+/**
+ * GET请求方法
+ * @param string $url 请求的url
+ * @param string $header 请求头数据
+ * @param string $cookie 请求cookies
+ * @param string $returnCookie 是否返回cookie
+ * @return string $returnCookie==0时，返回请求返回内容
+ * @return array $returnCookie==1时，返回请求返回内容content和cookie
+ */
+function curl_get_request($url, $header='', $cookie='', $returnCookie=0){
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+    curl_setopt($curl, CURLOPT_AUTOREFERER, 1);
+    curl_setopt($curl, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36');
+    if($header) {
+        curl_setopt($curl,CURLOPT_HTTPHEADER,$header);  //设置表头
     }
+    if($cookie) {
+        curl_setopt($curl, CURLOPT_COOKIE, $cookie);
+    }
+    curl_setopt($curl, CURLOPT_HEADER, $returnCookie);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+    $filecontent = curl_exec($curl);
+    if (curl_errno($curl)) {
+        return curl_error($curl);
+    }
+    curl_close($curl);
+    if($returnCookie){
+        list($header, $body) = explode("\r\n\r\n", $filecontent, 2);
+        preg_match_all("/Set\-Cookie:([^;]*);/i", $filecontent, $matches);
+        $cookie='';
+        foreach ($matches[1] as $value) {
+            $cookie = $value.';'.$cookie;
+        }
+        $info['cookie']  = preg_replace('# #','',$cookie);
+        $info['content'] = $body;
+        return $info;
+    }else{
+        return $filecontent;
+    }
+}
 ```
 
 ```
-//参数1：访问的URL，参数2：请求头数据，参数3：post数据，参数4：提交的$cookies,参数5：是否返回$cookies
-public function curl_post_request($url, $header='', $data='', $cookie='', $returnCookie=0){
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_POST, 1);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
-        curl_setopt($curl, CURLOPT_AUTOREFERER, 1);
-        curl_setopt($curl, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36');
-        if($header) {
-            curl_setopt($curl,CURLOPT_HTTPHEADER,$header);  //设置表头
-        }
-        if($cookie) {
-            curl_setopt($curl, CURLOPT_COOKIE, $cookie);
-        }
-        curl_setopt($curl, CURLOPT_HEADER, $returnCookie);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
-        $filecontent = curl_exec($curl);
-        if (curl_errno($curl)) {
-            return curl_error($curl);
-        }
-        curl_close($curl);
-        if($returnCookie){
-            list($header, $body) = explode("\r\n\r\n", $filecontent, 2);
-            preg_match_all("/Set\-Cookie:([^;]*);/", $filecontent, $matches);
-            $cookie='';
-            foreach ($matches[1] as $value) {
-              $cookie = $value.';'.$cookie;
-            }
-            $info['cookie']  = preg_replace('# #','',$cookie);
-            $info['content'] = $body;
-            return $info;
-        }else{
-            return $filecontent;
-        }
+/**
+ * POST请求方法
+ * @param string $url 请求的url
+ * @param string $header 请求头数据
+ * @param string $data post数据
+ * @param string $cookie 请求cookies
+ * @param string $returnCookie 是否返回cookie
+ * @return string $returnCookie==0时，返回请求返回内容
+ * @return array $returnCookie==1时，返回请求返回内容content和cookie
+ */
+public static function curl_post_request($url, $header='', $data='', $cookie='', $returnCookie=0){
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_POST, 1);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+    curl_setopt($curl, CURLOPT_AUTOREFERER, 1);
+    curl_setopt($curl, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36');
+    if($header) {
+        curl_setopt($curl,CURLOPT_HTTPHEADER,$header);  //设置表头
     }
+    if($cookie) {
+        curl_setopt($curl, CURLOPT_COOKIE, $cookie);
+    }
+    curl_setopt($curl, CURLOPT_HEADER, $returnCookie);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+    $filecontent = curl_exec($curl);
+    if (curl_errno($curl)) {
+        return curl_error($curl);
+    }
+    curl_close($curl);
+    if($returnCookie){
+        list($header, $body) = explode("\r\n\r\n", $filecontent, 2);
+        preg_match_all("/Set\-Cookie:([^;]*);/i", $filecontent, $matches);
+        $cookie='';
+        foreach ($matches[1] as $value) {
+            $cookie = $value.';'.$cookie;
+        }
+        $info['cookie']  = preg_replace('# #','',$cookie);
+        $info['content'] = $body;
+        return $info;
+    }else{
+        return $filecontent;
+    }
+}
 ```
 
 ### 分析教务系统的登录过程
@@ -196,6 +213,6 @@ $url='jw.ecit.cn/reportFiles/student/cj_zwcjd_all.jsp'.'?ticket='.$ticket;
 哈哈哈，高兴！
 
 ### 结尾
-最后肯定是做个登录页来测试一下咯
+最后做个登录页来测试一下
 ![登录页](http://images.atecut.cn/phpcurl15.png)
 ![成绩信息页](http://images.atecut.cn/phpcurl16.png)
