@@ -3,7 +3,7 @@
 
 ### 封装了两个函数
 封装了两个函数来分别进行get和post请求。
-```
+```php
 /**
  * GET请求方法
  * @param string $url 请求的url
@@ -50,7 +50,7 @@ function curl_get_request($url, $header='', $cookie='', $returnCookie=0){
 }
 ```
 
-```
+```php
 /**
  * POST请求方法
  * @param string $url 请求的url
@@ -131,7 +131,7 @@ https://cas.ecit.cn/index.jsp?service=http://portal.ecit.cn/Authentication
 自然，相同的`cookies`也有相同的`lt`。
 
 有了思路就来写代码了，用get方式请求页面，再用正则匹配出lt：
-```
+```php
 $url = "https://cas.ecit.cn/index.jsp?service=http://portal.ecit.cn/Authentication";
 //1.get获取第一个cookie值
 $filecontent = curl_get_request($url, '', '', 1);
@@ -145,7 +145,7 @@ $lt = $arr[1][0];
 ![隐藏的lt参数](http://images.atecut.cn/phpcurl4.png)
 
 下一步就是用post方法提交数据了
-```
+```php
 //3.post获取第二个cookie值，地址不变,需要请求的参数
 $data = array (
     'username' => '学号',
@@ -175,7 +175,7 @@ $cookie = $cookie_1.";".$cookie_2;
 
 这说明，每次成功登录后，除了两个cookie外，服务器还会分配一个ticket值给客户端，用来验证是否登录成功。那这又涉及到刚刚提到的知识了。
 用get方法去请求刚刚那个页面，用正则匹配出ticket值。
-```
+```php
 $url='http://jw.ecit.cn/login.jsp';
 $filecontent=curl_get_request($url, '', $cookie, 0);
 $preg2 = "/ticket=(.*)\";/";
@@ -185,7 +185,7 @@ $ticket=$arr2[1][0];
 输出一下看看：![ticket参数](http://images.atecut.cn/phpcurl11.png)
 
 既然ticket值得到了，而且如果没ticket参数的话会重定向到`http://xxx?ticket=xxx`这样的url，那我们拼接成这样的url，再get请求试试：
-```
+```php
 //5.用ticket拼接url请求http://jw.ecit.cn/login.jsp
 $url=$url.'?ticket='.$ticket;
 echo curl_get_request($url, '', $cookie, 0);
@@ -194,7 +194,7 @@ echo curl_get_request($url, '', $cookie, 0);
 没问题，获取成功，不会再重定向了。
 
 再去get请求成绩页试试
-```
+```php
 //6.用ticket拼接url请求成绩页
 $url='http://jw.ecit.cn/gradeLnAllAction.do?type=ln&oper=qbinfo&lnxndm=2017-2018%D1%A7%C4%EA%B5%DA%D2%BB%D1%A7%C6%DA(%C1%BD%D1%A7%C6%DA)'.'&ticket='.$ticket;
 $score=curl_get_request($url, '', $cookie, 0);
@@ -205,7 +205,7 @@ OJBK！获取成绩页成功！
 
 接下来要做的就是用正则去把一个个成绩信息匹配出来了。
 不过我发现一个打印页，这个页面更好进行正则匹配，嘿嘿。
-```
+```php
 $url='jw.ecit.cn/reportFiles/student/cj_zwcjd_all.jsp'.'?ticket='.$ticket;
 ```
 ![获取成绩打印页页成功](http://images.atecut.cn/phpcurl17.png)
